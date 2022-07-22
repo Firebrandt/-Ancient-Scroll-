@@ -78,7 +78,9 @@ interface MeaningCloudApiService {
                                   @Part("txt") txt: RequestBody,
                                   @Part("lang") lang: RequestBody = "en".toRequestBody(PLAINTEXT_MEDIA_TYPE),
                                   @Part("limit") limit: Int = 40) : SummarizeQuery
-    /** Send a POST request to the MeaningCloud summarize endpoint to retrieve a summary of some text. */
+    /** Send a POST request to the MeaningCloud summarize endpoint to retrieve a summary of some text.
+     * Preconditions:
+     * - txt is not empty */
 }
 
 object WebApi {

@@ -93,13 +93,13 @@ class NetworkTests {
 
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
-        fun test_summarize_empty_example() = runTest {
+        fun test_summarize_tiny_example() = runTest {
             /** Test the MeaningCloudApiService's behaviour when the summary it retrieves
-             * is empty. */
+             * is very small. */
 
             val exampleText = "Word!"
             val actualSummary = WebApi.meaningCloudApiService.getSummarizedText(
-                txt = "".toRequestBody(PLAINTEXT_MEDIA_TYPE), limit = 40).summary
+                txt = exampleText.toRequestBody(PLAINTEXT_MEDIA_TYPE), limit = 40).summary
             val expectedSummary = "Word!"
             assertEquals(expectedSummary, actualSummary)
         }
