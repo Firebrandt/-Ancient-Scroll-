@@ -61,23 +61,23 @@ interface WikipediaApiService {
      */
 
     @GET(WIKI_PARSE_ENDPOINT)
-    suspend fun queryPage(@Query("page") title: String) : Parsed
-    /** Return a WikipediaQuery corresponding to a particular page. */
+    suspend fun queryPage(@Query("page") title: String? = null, @Query("oldid") revisionId : Int? = null) : Parsed
+    /** Return a WikipediaQuery corresponding to a particular page.
+     * oldid will search for a particular revision, and overrides page. Primarily used for testing. */
 }
 
 interface MeaningCloudApiService {
     /** An interface defining how Retrofit will interact with the Meaningcloud API. **/
 
-    // TODO: Figure out WTF this part stuff is. What am I doing here, just sending key/value pairs??
-    //  How does this part multipart shit work? WTF is retrofit doing? Do I need headers?
-    //  Are the parameters mentioned there parts I need to supply?
     // The request body direct initialisation is needed because retrofit will DOUBLE QUOTE string parameters!!! BREAKING THE REQUEST!! aghaAGAHGAHAHAAAA!!!
+    // Basically, Retrofit will format the multipart request for us. We just send the values of part "parameters" or whatever and it'll auto-generate the "parts"
+    // using the converter.
     @Multipart
     @POST(MEANING_CLOUD_SUMMARIZE_ENDPOINT)
     suspend fun getSummarizedText(@Part("key") key: RequestBody = MY_KEY.toRequestBody(PLAINTEXT_MEDIA_TYPE),
                                   @Part("txt") txt: RequestBody,
                                   @Part("lang") lang: RequestBody = "en".toRequestBody(PLAINTEXT_MEDIA_TYPE),
-                                  @Part("limit") limit: Int = 100) : SummarizeQuery
+                                  @Part("limit") limit: Int = 40) : SummarizeQuery
     /** Send a POST request to the MeaningCloud summarize endpoint to retrieve a summary of some text. */
 }
 

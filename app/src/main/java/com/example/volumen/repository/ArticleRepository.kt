@@ -3,7 +3,6 @@ package com.example.volumen.repository
 import com.example.volumen.data.Article
 import com.example.volumen.data.WikipediaQuery
 import com.example.volumen.network.PLAINTEXT_MEDIA_TYPE
-import com.example.volumen.network.SummarizeTextRequest
 import com.example.volumen.network.WebApi
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.await

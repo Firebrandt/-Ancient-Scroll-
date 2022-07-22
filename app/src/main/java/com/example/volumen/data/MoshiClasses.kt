@@ -36,7 +36,7 @@ data class WikipediaQuery (
      */
     val title: String,
     @Json(name = "images") val imageNames : List<String>,
-    @Json(name = "links") val relatedPages: List<Link>
+    @Json(name = "links") val relatedPages: List<Link>,
 )
 
 data class SummarizeStatus(
