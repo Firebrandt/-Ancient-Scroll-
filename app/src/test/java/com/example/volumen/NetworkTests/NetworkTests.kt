@@ -37,9 +37,9 @@ class NetworkTests {
             val expectedPageImages = listOf("GMC_Sierra_Denali_P4250788.jpg", "GMC_Sierra_GMT800_2500HD_Techni-Air_2000_Extended_Cab.jpg")
             val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionId)
 
-            assertEquals(testQuery.parsed.title, expectedPageTitle)
-            assertEquals(testQuery.parsed.relatedPages, expectedPageLinks)
-            assertEquals(testQuery.parsed.imageNames, expectedPageImages)
+            assertEquals(expectedPageTitle, testQuery.parsed.title)
+            assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
+            assertEquals(expectedPageImages, testQuery.parsed.imageNames)
         }
 
         @OptIn(ExperimentalCoroutinesApi::class)
@@ -52,9 +52,9 @@ class NetworkTests {
             val expectedPageImages = listOf("WPanthroponymy.svg")
             val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
 
-            assertEquals(testQuery.parsed.title, expectedPageTitle)
-            assertEquals(testQuery.parsed.relatedPages, expectedPageLinks)
-            assertEquals(testQuery.parsed.imageNames, expectedPageImages)
+            assertEquals(expectedPageTitle, testQuery.parsed.title)
+            assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
+            assertEquals(expectedPageImages, testQuery.parsed.imageNames)
         }
 
         @OptIn(ExperimentalCoroutinesApi::class)
@@ -88,6 +88,19 @@ class NetworkTests {
                 exampleText.toRequestBody(PLAINTEXT_MEDIA_TYPE), limit = 40).summary
 
             val expectedSummary = MY_EXAMPLE_TEXT_SUMMARY
+            assertEquals(expectedSummary, actualSummary)
+        }
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        @Test
+        fun test_summarize_empty_example() = runTest {
+            /** Test the MeaningCloudApiService's behaviour when the summary it retrieves
+             * is empty. */
+
+            val exampleText = "Word!"
+            val actualSummary = WebApi.meaningCloudApiService.getSummarizedText(
+                txt = "".toRequestBody(PLAINTEXT_MEDIA_TYPE), limit = 40).summary
+            val expectedSummary = "Word!"
             assertEquals(expectedSummary, actualSummary)
         }
     }
