@@ -1,7 +1,6 @@
 package com.example.volumen.NetworkTests
 
 import com.example.volumen.data.Link
-import com.example.volumen.data.WikipediaQuery
 import com.example.volumen.network.PLAINTEXT_MEDIA_TYPE
 import com.example.volumen.network.WebApi
 import com.example.volumen.repository.ArticleRepository
@@ -51,7 +50,7 @@ class NetworkTests {
             val expectedPageTitle = "Gelmi"
             val expectedPageLinks = listOf<Link>(Link("Talk:Gelmi"), Link("Given name"), Link("Italian surname"), Link("Ludovico Gelmi"), Link("Roy Gelmi"), Link("Surname"), Link("Wikipedia:Manual of Style/Linking"))
             val expectedPageImages = listOf("WPanthroponymy.svg")
-            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = 1097532676)
+            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
 
             assertEquals(expectedPageTitle, testQuery.parsed.title)
             assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
@@ -66,7 +65,7 @@ class NetworkTests {
             val expectedPageTitle = "Free information"
             val expectedPageLinks = listOf<Link>(Link("Free content"), Link("Information wants to be free"))
             val expectedPageImages = listOf<String>()
-            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = 1099563720)
+            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
 
             assertEquals(expectedPageTitle, testQuery.parsed.title)
             assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
@@ -107,21 +106,30 @@ class NetworkTests {
     }
 
     class ArticleRepositoryTest {
-        /** Normally I would attempt to test the getArticle() function in the repository, but because
+        /** Normally I would attempt to test the getArticle() and queryRelatedPages functions in the repository, but because
          * the text retrieval only allows for title, and pages on Wikipedia can often be edited,
-         * automated, fixed-output testing for that function is impossible.
+         * automated, fixed-output testing for these functions is impossible.
          *
-         * (Article results could change at any time).
+         * (Results given a title could change at any time).
          *
          * Instead I've included a test that will let me manually trace through to check. Not ideal,
          * but we play the cards we have.
          */
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun manual_test_getArticle() = runTest {
             val testTitle = "Gelmi"
             val finalArticle = ArticleRepository().getArticle(testTitle)
             assertEquals(finalArticle, finalArticle)
+        }
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        @Test
+        fun manual_test_queryRelatedPages() = runTest {
+            val testTitle = "Gelmi"
+            val relatedArticles = ArticleRepository().getRelatedPages(testTitle)
+            assertEquals(relatedArticles, relatedArticles)
         }
     }
 
