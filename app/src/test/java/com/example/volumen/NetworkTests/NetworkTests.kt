@@ -4,6 +4,7 @@ import com.example.volumen.data.Link
 import com.example.volumen.data.WikipediaQuery
 import com.example.volumen.network.PLAINTEXT_MEDIA_TYPE
 import com.example.volumen.network.WebApi
+import com.example.volumen.repository.ArticleRepository
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -31,11 +32,11 @@ class NetworkTests {
         @Test
         fun test_query_no_links() = runTest {
             /** Test the WikipediaApi's ability to query a page with no links. (More null case). **/
-            val fixedRevisionId = 1099178894
+            val fixedRevisionId = 1099178947
             val expectedPageTitle = "GMC Sierra"
             val expectedPageLinks = listOf<Link>()
             val expectedPageImages = listOf("GMC_Sierra_Denali_P4250788.jpg", "GMC_Sierra_GMT800_2500HD_Techni-Air_2000_Extended_Cab.jpg")
-            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionId)
+            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = 1099178947)
 
             assertEquals(expectedPageTitle, testQuery.parsed.title)
             assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
@@ -50,7 +51,7 @@ class NetworkTests {
             val expectedPageTitle = "Gelmi"
             val expectedPageLinks = listOf<Link>(Link("Talk:Gelmi"), Link("Given name"), Link("Italian surname"), Link("Ludovico Gelmi"), Link("Roy Gelmi"), Link("Surname"), Link("Wikipedia:Manual of Style/Linking"))
             val expectedPageImages = listOf("WPanthroponymy.svg")
-            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
+            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = 1097532676)
 
             assertEquals(expectedPageTitle, testQuery.parsed.title)
             assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
@@ -65,7 +66,7 @@ class NetworkTests {
             val expectedPageTitle = "Free information"
             val expectedPageLinks = listOf<Link>(Link("Free content"), Link("Information wants to be free"))
             val expectedPageImages = listOf<String>()
-            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
+            val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = 1099563720)
 
             assertEquals(expectedPageTitle, testQuery.parsed.title)
             assertEquals(expectedPageLinks, testQuery.parsed.relatedPages)
@@ -106,21 +107,21 @@ class NetworkTests {
     }
 
     class ArticleRepositoryTest {
+        /** Normally I would attempt to test the getArticle() function in the repository, but because
+         * the text retrieval only allows for title, and pages on Wikipedia can often be edited,
+         * automated, fixed-output testing for that function is impossible.
+         *
+         * (Article results could change at any time).
+         *
+         * Instead I've included a test that will let me manually trace through to check. Not ideal,
+         * but we play the cards we have.
+         */
 
         @Test
-        fun test_article_getting_basic_example() {
-             /** Test the repository's API to get an Article object from a test WikipediaQuery,
-              * and some supplied example text to be summarized. See above note on summary testing.
-              */
-            val exampleQuery = WikipediaQuery("Example", listOf("Image1", "Image2"), listOf(Link("Link1"), Link("Link2")))
-            val exampleText = MY_EXAMPLE_TEXT
-
-
-        }
-
-        @Test
-        fun test_article_no_links_or_images() {
-            /** Test the repository's ability to make an Article object from a page with no images or links. */
+        fun manual_test_getArticle() = runTest {
+            val testTitle = "Gelmi"
+            val finalArticle = ArticleRepository().getArticle(testTitle)
+            assertEquals(finalArticle, finalArticle)
         }
     }
 

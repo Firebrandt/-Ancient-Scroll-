@@ -13,8 +13,8 @@ class ArticleRepository {
      * and hide implementation details of the 'data layer' work like working with a database. **/
 
     suspend fun getArticle(title: String) : Article {
-        /** Returns an Article object based on an Article title. Queries the Wikipedia API
-         * in the background, hence the suspend keyword.
+        /** Returns an Article object based on an Article title.
+         * Queries the Wikipedia API in the background, hence the suspend keyword.
          */
         val wikiQuery = WebApi.wikipediaApiService.queryPage(title)
         val imageLinkList = mutableListOf<String>()
