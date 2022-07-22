@@ -20,7 +20,7 @@ class ItemListAdapter() : ListAdapter<Article, ItemListAdapter.ItemViewHolder>(D
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val thisItem = getItem(position)
-        holder.dateTextView.text = thisItem.date
+        // holder.dateTextView.text = thisItem.date
         holder.titleTextView.text = thisItem.title
 
         // TODO: Implement actually loading an image from the internet.
