@@ -2,6 +2,7 @@ package com.example.volumen.uicontrollers
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +11,7 @@ import com.example.volumen.viewModels.ItemViewModel
 
 class ItemDetailFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = ItemDetailFragment()
-    }
-
-    private lateinit var viewModel: ItemViewModel
+    private val viewModel: ItemViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

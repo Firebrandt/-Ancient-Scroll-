@@ -107,13 +107,15 @@ class NetworkTests {
 
     class ArticleRepositoryTest {
         /** Normally I would attempt to test the getArticle() and queryRelatedPages functions in the repository, but because
-         * the text retrieval only allows for title, and pages on Wikipedia can often be edited,
+         * the text retrieval only inputs for title, and pages on Wikipedia can often be edited,
          * automated, fixed-output testing for these functions is impossible.
          *
          * (Results given a title could change at any time).
          *
          * Instead I've included a test that will let me manually trace through to check. Not ideal,
          * but we play the cards we have.
+         *
+         * TODO: These seem to work for a basic case.
          */
 
         @OptIn(ExperimentalCoroutinesApi::class)

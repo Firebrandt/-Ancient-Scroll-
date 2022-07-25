@@ -4,7 +4,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-
+        <variable
+            name="article"
+            type="com.example.volumen.data.Article" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -20,20 +22,16 @@
                 android:id="@+id/event_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                imageUrl="null"
+                app:imageUrl="@{article.imageList[0]}"
+                android:importantForAccessibility="no"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView
-                android:id="@+id/event_date_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-
-            <TextView
                 android:id="@+id/event_title_text"
+                android:text="@{article.title}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

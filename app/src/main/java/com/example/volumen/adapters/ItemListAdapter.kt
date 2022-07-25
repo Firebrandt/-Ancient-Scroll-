@@ -9,23 +9,26 @@ import com.example.volumen.R
 import com.example.volumen.data.Article
 import com.example.volumen.databinding.ListItemBinding
 
-class ItemListAdapter() : ListAdapter<Article, ItemListAdapter.ItemViewHolder>(DiffCallback) {
-    /** A fairly standard ListAdapter meant to serve the itemList recycler view. **/
+class ItemListAdapter(val updateViewModel: (Article) -> Unit) : ListAdapter<Article, ItemListAdapter.ItemViewHolder>(DiffCallback) {
+    /** A fairly standard ListAdapter meant to serve the itemList recycler view.
+     * updateViewModel is passed in to be used as an onClickListener for view model updating with
+     * a clicked article.
+     *
+     * **/
 
     class ItemViewHolder(private val binding: ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        val dateTextView = binding.eventDateText
-        val titleTextView = binding.eventTitleText
-        val eventImageView = binding.eventImage
+
+        // Assignments to views are handled via data binding in the layout.
+        fun bind(itemToBind: Article) {
+            binding.article = itemToBind
+            // Immediately update any data bindings now that things have changed up...
+            binding.executePendingBindings()
+        }
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val thisItem = getItem(position)
-        // holder.dateTextView.text = thisItem.date
-        holder.titleTextView.text = thisItem.title
-
-        // TODO: Implement actually loading an image from the internet.
-        // If we have images, use the first one as the list item image.
-        holder.eventImageView.setImageResource(R.drawable.ic_launcher_background)
+        holder.bind(thisItem)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -46,5 +49,4 @@ class ItemListAdapter() : ListAdapter<Article, ItemListAdapter.ItemViewHolder>(D
             }
         }
     }
-
 }
