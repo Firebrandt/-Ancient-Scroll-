@@ -16,13 +16,17 @@ class ItemListAdapter(val updateViewModel: (Article) -> Unit) : ListAdapter<Arti
      *
      * **/
 
-    class ItemViewHolder(private val binding: ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ItemViewHolder(private val binding: ListItemBinding, private val onClick: (Article) -> Unit) : RecyclerView.ViewHolder(binding.root) {
 
         // Assignments to views are handled via data binding in the layout.
         fun bind(itemToBind: Article) {
             binding.article = itemToBind
+            binding.listCard.setOnClickListener {
+                onClick(itemToBind)
+            }
             // Immediately update any data bindings now that things have changed up...
             binding.executePendingBindings()
+
         }
     }
 
@@ -32,8 +36,13 @@ class ItemListAdapter(val updateViewModel: (Article) -> Unit) : ListAdapter<Arti
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val binding : ListItemBinding = ListItemBinding.inflate(LayoutInflater.from(parent.context))
-        return ItemViewHolder(binding)
+        // REMINDER TO SELF: When inflating a view from a layoutInflater, we need to pass in parent to use layout_ attributes.
+        // Those are part of the LayoutParams for a view. The view evaluates these in relation to the PARENT;
+        // it uses values the parent gives to it to calculate its LayoutParams. Hence the need for it in the function.
+        // No parent = THESE ARE THROWN OUT! (I had learned this before when curious, but forgot).
+
+        val binding : ListItemBinding = ListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ItemViewHolder(binding, updateViewModel)
     }
 
     companion object {

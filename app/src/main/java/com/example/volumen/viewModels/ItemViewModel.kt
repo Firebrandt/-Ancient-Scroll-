@@ -37,11 +37,6 @@ class ItemViewModel : ViewModel() {
          * Interface with the repository to do this. For now, we have fixed updates.
          * Live updates can be added later (although they probably won't be necessary).
          */
-        //TODO: I'm pretty sure the coroutine executes asynchronously with respect to other code.
-        // I believe that is messing up the initialization. Can't mutate within it. Or can I?
-        // Lower article limit to ONE just to get something to appear. Check if we can fix it
-        // By waiting for the coroutine to finish.
-
         // Definitely test the recycler view to see if something actually happens... and it displays stuff...
         val newValue = repository.getRelatedPages(OUTLINE_PAGE_TITLE)
         Log.d(TAG, "getDataSet: $newValue")

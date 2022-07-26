@@ -10,27 +10,32 @@
     </data>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/list_card"
         android:layout_width="match_parent"
         android:layout_height="200dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/event_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:imageUrl="@{article.imageList[0]}"
                 android:importantForAccessibility="no"
+                app:imageUrl="@{article.imageList[0]}"
+                
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView
                 android:id="@+id/event_title_text"
-                android:text="@{article.title}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@{article.title}"
+                android:textAlignment="center"
+                tools:text="The text goes here!" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

@@ -8,17 +8,14 @@
 
     </data>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <androidx.slidingpanelayout.widget.SlidingPaneLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/sliding_pane"
+            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/item_list"
-                android:layout_width="500dp"
+                android:layout_width="300dp"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/list_item"/>
 
@@ -31,6 +28,4 @@
 
         </androidx.slidingpanelayout.widget.SlidingPaneLayout>
 
-
-    </FrameLayout>
 </layout>
