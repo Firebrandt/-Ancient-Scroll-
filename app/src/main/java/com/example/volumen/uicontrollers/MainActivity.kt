@@ -17,7 +17,6 @@ import kotlinx.coroutines.*
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
-    // TODO: Get the recycler view load image thing working.
     private val viewModel: ItemViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
