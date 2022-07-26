@@ -31,7 +31,7 @@ class ItemViewModel : ViewModel() {
     val dataset : LiveData<List<Article>> get() = _dataset
 
 
-    suspend fun getDataSet() {
+    suspend fun getDataSet() : List<Article> {
         /** Get the full list of articles for the app from an outline page. Mutate _dataset
          * to store it
          * Interface with the repository to do this. For now, we have fixed updates.
@@ -43,7 +43,8 @@ class ItemViewModel : ViewModel() {
         // By waiting for the coroutine to finish.
 
         // Definitely test the recycler view to see if something actually happens... and it displays stuff...
-        _dataset.postValue(repository.getRelatedPages(OUTLINE_PAGE_TITLE))
-        Log.d(TAG, "Coroutine complete. The dataset should be loaded in by now...")
+        val newValue = repository.getRelatedPages(OUTLINE_PAGE_TITLE)
+        Log.d(TAG, "getDataSet: $newValue")
+        return newValue
     }
 }
