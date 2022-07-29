@@ -1,28 +1,30 @@
 package com.example.volumen.uicontrollers
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
+import androidx.test.espresso.idling.CountingIdlingResource
 import com.example.volumen.adapters.ItemListAdapter
 import com.example.volumen.data.Article
 import com.example.volumen.databinding.ActivityMainBinding
 import com.example.volumen.viewModels.ItemViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "MainActivity"
+
+// Used for instrumentation tests.
+val articleIdlingRes: CountingIdlingResource = CountingIdlingResource("Loading Articles")
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: ItemViewModel by viewModels()
     private lateinit var binding : ActivityMainBinding
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +41,15 @@ class MainActivity : AppCompatActivity() {
         this.onBackPressedDispatcher.addCallback(SlidingPaneOnBackPressedCallback(binding.slidingPane))
 
         lifecycleScope.launch(Dispatchers.IO) {
+            // Tell espresso to wait for this task to finish before continuing:
+            articleIdlingRes.increment()
             val dataset = viewModel.getDataSet()
 
             withContext(Dispatchers.Main) {
                 adapter.submitList(dataset)
             }
+            // Tell espresso the loading is done and we're good :)
+            articleIdlingRes.decrement()
         }
 
 
@@ -54,8 +60,7 @@ class MainActivity : AppCompatActivity() {
          * by expanding the details pane. Meant to be supplied as an onClickListener and not called
          * directly.
          */
-        //TODO: Is property access like this OK? This is for the viewModel, not supplied to other classes.
-        viewModel.currentArticle = clickedArticle
+        viewModel.updateCurrentArticle(clickedArticle)
         binding.slidingPane.open()
     }
 
@@ -90,11 +95,12 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+    companion object {
+        fun getIdlingResourceInTest(): CountingIdlingResource {
+            /** Return MainActivity's article-getting idling resource. For test purposes only. */
+            return articleIdlingRes
+        }
+    }
 }
 
-//// Generates some dummy list items
-//val dummyArticle = Article(0, listOf(), "Tiny text!", "Dummy!", "No URL!")
-//val dummyList = mutableListOf<Article>()
-//repeat(5) {
-//    dummyList.add(dummyArticle)
-//}

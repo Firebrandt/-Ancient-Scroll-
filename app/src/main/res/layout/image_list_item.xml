@@ -7,9 +7,23 @@
     android:layout_width="match_parent"
     android:layout_height="100dp">
 
-    <ImageView
-        android:id="@+id/image_list_image"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        tools:srcCompat="@tools:sample/avatars" />
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/image_list_image"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/image_caption"
+            android:text="normally the credits go here, or the title maybe."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

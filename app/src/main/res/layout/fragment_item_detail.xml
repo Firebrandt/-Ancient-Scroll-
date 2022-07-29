@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
+        <variable
+            name="viewModel"
+            type="com.example.volumen.viewModels.ItemViewModel" />
     </data>
 
     <LinearLayout
@@ -10,10 +13,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/details_image_list"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/details_image_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -22,7 +25,7 @@
             <TextView
                 android:id="@+id/details_text"
                 android:layout_width="match_parent"
-                android:text="Welcome to the details view!!!"
+                android:text="@{viewModel.currentArticle.summarized}"
                 android:layout_height="wrap_content"/>
 
         </ScrollView>

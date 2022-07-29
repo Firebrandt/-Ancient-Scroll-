@@ -2,6 +2,7 @@ package com.example.volumen.bindingAdapters
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.volumen.R
 
@@ -19,5 +20,4 @@ fun loadImage(view: ImageView, url: String?) {
         placeholder(R.drawable.ic_placeholder_image_24)
         error(R.drawable.ic_image_error_off_24)
     }
-    view.setImageResource(R.drawable.ic_placeholder_image_24)
 }
