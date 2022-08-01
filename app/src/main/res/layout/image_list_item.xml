@@ -20,7 +20,6 @@
 
         <TextView
             android:id="@+id/image_caption"
-            android:text="normally the credits go here, or the title maybe."
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

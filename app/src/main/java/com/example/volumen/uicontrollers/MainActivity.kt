@@ -1,6 +1,7 @@
 package com.example.volumen.uicontrollers
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 adapter.submitList(dataset)
             }
+            Log.i(TAG, "onCreate: Finished loading MainActivity recycler view :)")
             // Tell espresso the loading is done and we're good :)
             articleIdlingRes.decrement()
         }
@@ -60,7 +62,10 @@ class MainActivity : AppCompatActivity() {
          * by expanding the details pane. Meant to be supplied as an onClickListener and not called
          * directly.
          */
+        Log.i(TAG, "handleClickedListItem: Handling the article recycler card click!")
         viewModel.updateCurrentArticle(clickedArticle)
+        Log.i(TAG, "handleClickedListItem: By the way the article is ${viewModel.currentArticle.value}")
+        binding.lifecycleOwner = this
         binding.slidingPane.open()
     }
 

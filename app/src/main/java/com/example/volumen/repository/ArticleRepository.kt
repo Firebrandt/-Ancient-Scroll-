@@ -61,7 +61,7 @@ class ArticleRepository {
         for (link in relatedPages) {
             // Skip empty articles. Note that this function gives us a map, not text.
             val articleTextMap = com.neelkamath.kwikipedia.getPage(link.linkedTitle)
-            if (articleList.size == 5){
+            if (articleList.size == 1){
                 break
             }
             if (articleTextMap.isNotEmpty()) {

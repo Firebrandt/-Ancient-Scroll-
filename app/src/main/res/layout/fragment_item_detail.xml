@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
-            name="viewModel"
+            name="myViewModel"
             type="com.example.volumen.viewModels.ItemViewModel" />
     </data>
 
@@ -13,22 +14,23 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/details_image_list"
+        <TextView
+            android:id="@+id/normal_title"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:text="@{myViewModel.currentArticle.title}"/>
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/manual_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-            <TextView
-                android:id="@+id/details_text"
-                android:layout_width="match_parent"
-                android:text="@{viewModel.currentArticle.summarized}"
-                android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PLEASE GOD LET TEXT SHOW UP!"/>
 
-        </ScrollView>
+
 
         <Button
             android:id="@+id/goto_article_button"
@@ -36,5 +38,6 @@
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
+
 
 </layout>
