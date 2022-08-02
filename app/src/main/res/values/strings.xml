@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Volumen</string>
+    <string name="goto_article_button_text">See original article!</string>
 </resources>

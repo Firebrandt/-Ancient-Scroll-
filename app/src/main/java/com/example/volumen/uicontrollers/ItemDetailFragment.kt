@@ -1,5 +1,8 @@
 package com.example.volumen.uicontrollers
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.volumen.R
@@ -27,18 +31,12 @@ class ItemDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        //TODO: A lot of work needs to be done on figuring out why shit doesn't appear in the details view.
-        // Do some debugging and focus on that. I think a previous hypothesis was that we were staying
-        // On an old current article and not observing it properly (staying on the fake article).
-        // but right now NOTHING shows and it is LiveData. Hmph. Maybe it's a null thing too.
-        // Or its a recycler view thing, actually.
-        // TBH the recycler view thing makes the most sense. This should only set up once!
-
         // Set up the data binding once we've initialized stuff.
         binding = FragmentItemDetailBinding.inflate(layoutInflater, container, false)
         binding.myViewModel = viewModel
-
-        //TODO: Pretty sure I need to pass a life cycle owner to the binding for live data updates to work?
+        // Include a reference to the fragment purely to data bind on click listeners.
+        binding.itemDetailFragment = this
+        // Remember we need to pass the binding a life cycle owner for it to auto-update properly.
         binding.lifecycleOwner = viewLifecycleOwner
 
         // Set up the recycler view as well.
@@ -47,43 +45,54 @@ class ItemDetailFragment : Fragment() {
 
         viewModel.currentArticle.value?.imageList?.let {
             val adapter = DetailsItemListAdapter(it)
-            // binding.detailsImageList.adapter = adapter
+            binding.detailsImageList.adapter = adapter
 
             val layoutManager = LinearLayoutManager(this.requireContext())
             layoutManager.orientation = LinearLayoutManager.HORIZONTAL
 
-            // binding.detailsImageList.layoutManager = layoutManager
+            binding.detailsImageList.layoutManager = layoutManager
             Log.i(TAG, "detailsImageList loading complete! Used $it")
         }
 
         // Observe current article to update the recycler view whenever we get a new list.
         viewModel.currentArticle.observe(viewLifecycleOwner) {
-            Log.i(TAG, "onCreateView: We're actually observing the article change! ${it} is the one that appears to have updated.")
+            Log.i(
+                TAG,
+                "onCreateView: We're actually observing the article change! ${it} is the one that appears to have updated."
+            )
 
             val adapter = DetailsItemListAdapter(it.imageList ?: listOf())
-            // binding.detailsImageList.adapter = adapter
+            binding.detailsImageList.adapter = adapter
             binding.manualTitle.text = it.title
             binding.executePendingBindings()
 
-            Log.i(TAG, "onCreateView: We tried to set up the binding. We have set it to ${binding.manualTitle.text} manually," +
-                    "and ${binding.normalTitle.text} via automatic data binding.")
-
-            //TODO: Damn it seems to be a UI problem! Sheesh! Since manual doesn't work either.
-            // Okay so it's a data binding problem. The article comes through properly and everything. But somehow the data bindings don't update, at all...
-            // Hm.
-
-            // TODO: Wait. The binding values seem to come through and everything, they just don't display!
-            //  WTF!!!!!! So it probably is UI side.
-            //  Okay, I have no idea what this is.
-
-            //
+            Log.i(
+                TAG,
+                "onCreateView: We tried to set up the binding. We have set it to ${binding.manualTitle.text} manually"
+            )
         }
 
-        // TODO: THIS BROKE IT BEFORE!!!@ ASDJAWDAWD
+        // THIS BROKE IT BEFORE!!!@ ASDJAWDAWD
         //  BUT SETTING IT TO BINDING WORKED! D;;;;;;;;;
-        //  Probably BECAUSE OUR CHANGES ARE TO THE BINDING AND NOT THE RAW LAYOUT FILE!
+        //  Probably BECAUSE OUR CHANGES ARE TO THE BINDING AND NOT THE RAW LAYOUT FILE! AHHH!
         return binding.root
-//        return inflater.inflate(R.layout.fragment_item_detail, container, false)
+//        DO NOT USE THIS LINE! return inflater.inflate(R.layout.fragment_item_detail, container, false)
     }
+
+    fun gotoArticle() {
+        /** A function that sets an implicit intent to open the original wikipedia article
+         * in a browser of some kind (handled by the system), and launches it.
+         *
+         * Meant to be used as an on Click listener for a navigate button.
+         */
+        val articleIntent : Intent = Intent(Intent.ACTION_VIEW).setData(Uri.parse(viewModel.currentArticle.value?.originalURL))
+
+        try {
+            startActivity(articleIntent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "We couldn't find an app that could launch the wikipedia link.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 }
