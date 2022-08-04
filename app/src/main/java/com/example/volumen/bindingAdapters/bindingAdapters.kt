@@ -15,9 +15,5 @@ fun loadImage(view: ImageView, url: String?) {
     /** A binding adapter that handles the imageUrl custom ImageView attribute by either loading
      * the image into the view, or displaying a placeholder image if the url is null.
      */
-    view.load(url) {
-        fallback(R.drawable.ic_placeholder_image_24)
-        placeholder(R.drawable.ic_placeholder_image_24)
-        error(R.drawable.ic_image_error_off_24)
-    }
+    view.load(url)
 }

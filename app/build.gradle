@@ -35,6 +35,12 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    packagingOptions {
+        // Too many files with this path. We'll just pick the first to bundle because it seems we
+        // can't bundle several.
+        pickFirst 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
@@ -82,10 +88,11 @@ dependencies {
 
     // Coil for image loading
     implementation "io.coil-kt:coil:2.1.0"
+    implementation("io.coil-kt:coil-svg:2.1.0")
 
     // Activity & Fragment for the Kotlin property delegates with view model provider.
-    implementation "androidx.fragment:fragment-ktx:1.5.0"
-    implementation "androidx.activity:activity-ktx:1.5.0"
+    implementation "androidx.fragment:fragment-ktx:1.5.1"
+    implementation "androidx.activity:activity-ktx:1.5.1"
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1"
@@ -98,4 +105,6 @@ dependencies {
     androidTestImplementation('androidx.test:runner:1.4.0')
     androidTestImplementation('androidx.test:rules:1.4.0')
 
+    // skrape is useful for web scraping
+    implementation "it.skrape:skrapeit:1.1.5"
 }
