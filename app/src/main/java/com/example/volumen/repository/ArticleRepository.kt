@@ -9,6 +9,9 @@ import it.skrape.fetcher.AsyncFetcher
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.response
 import it.skrape.fetcher.skrape
+import it.skrape.selects.and
+import it.skrape.selects.eachSrc
+import it.skrape.selects.html5.div
 import it.skrape.selects.html5.img
 import okhttp3.RequestBody.Companion.toRequestBody
 
@@ -25,7 +28,7 @@ class ArticleRepository {
          * Queries the Wikipedia API in the background, hence the suspend keyword.
          */
         val wikiQuery = WebApi.wikipediaApiService.queryPage(title)
-        val imageLinkList = mutableListOf<String>()
+        var imageLinkList = listOf<String>()
         var articleText = ""
 
         // Construct article text from heading: contents mapping from kwikipedia. Also summarize.
@@ -40,18 +43,11 @@ class ArticleRepository {
         // (not strictly necessary for article URL due to redirects but still helpful).
         val formattedTitle = title.replace(' ', '_')
 
-        // Construct the list of image links. Starting from predictable MediaViewer links, and
-        // web-scraping the actual source of the image.
-        for (name in wikiQuery.parsed.imageNames) {
-            val fakeUrl = "https://en.wikipedia.org/wiki/$formattedTitle#/media/File:$name"
-            val imgUrl = webScrapeActualImageUrl(fakeUrl)
-            imgUrl?.let {
-                imageLinkList.add(it)
-            }
-        }
-
         // Construct a wikipedia link. Use the standard schema.
         val wikipediaLink = WIKIPEDIA_PAGE_URL_PREFIX + formattedTitle
+
+        // Construct the list of image links by webscraping.
+        imageLinkList = webScrapeActualImageUrls(wikipediaLink)
 
         // Make the article and return it. Don't use the URL formatted title for display though.
         val returnedArticle = Article(imageList = imageLinkList, summarized = summarizedTextQuery.summary,
@@ -85,49 +81,57 @@ class ArticleRepository {
         return articleList
     }
 
-    private fun webScrapeActualImageUrl(fakeWikipediaImageUrl: String) : String? {
-        /** Returns the actual image URL on Wikimedia commons pertaining to a Wikipedia 'image link'.
+    private fun webScrapeActualImageUrls(wikipediaPageUrl: String) : List<String> {
+        /** Returns the actual image URLs on Wikimedia commons pertaining to a Wikipedia page link.
+         *
+         * Unfortunately the image link parameter doesn't really help and we had to do this instead.
          *
          * The initial image URL we construct according to the template actually leads us
          * to a MediaViewer page on Wikipedia. It does not actually navigate us to the image, and
          * so, we can't actually load the image with coil, hence this becomes necessary to actually
-         * load the bloody thing.
+         * get usable URLs to load with.
          *
          * Uses skrape{it}, a webscraping library, to parse the site as an HTML document.
          */
 
         // The html class name of the <img> element shown at the MediaViewer page.
-        val MEDIA_VIEWER_OPENED_IMAGE_CLASS_NAME = "jpg mw-mmv-dialog-is-open"
-
-        var actualLinks : List<String>? = null
+        val MEDIA_VIEWER_IMAGE_WRAPPER_CLASS_NAME = "mw-mmv-image"
+        var actualLinks : MutableList<String> = mutableListOf()
 
         //TODO: It's saying it cannot find the element. Do try to debug this. Maybe nest harder.
         // Maybe selecting with the CSS will work. I mean it does say CSS selector, right?
 
+        // TODO: I could optimize this and make it less terrible by just urnning one request instead of one for every link. Can probably get 'em all that way.
+
         // Use skrape to parse the site as an HTML document.
-        Log.d(TAG, "webScrapeActualImageUrl: $fakeWikipediaImageUrl")
+        Log.d(TAG, "URL of page to parse: $wikipediaPageUrl")
         skrape(HttpFetcher) {
             // HTML Request configured here.
             request {
-                url = fakeWikipediaImageUrl
+                url = wikipediaPageUrl
                 timeout = 180000
             }
             response {
                 // In this scope everything from the response is made available. We want the document.
                 htmlDocument {
                     // Parsed document is available in this scope.
-                    actualLinks = findFirst {
-                        // Find the first image with appropriate class, and basically, take its first source.
-                        img {
-                            withClass = MEDIA_VIEWER_OPENED_IMAGE_CLASS_NAME
-                            findFirst {
-                                eachSrc
-                            }
+
+                    //TODO: We can find the images and the URLs. Selecting the one I want doesn't seem to be working too well, though.
+                    // Okay. For some reason finding the main image using skrape is hard as fuck. But the thumbnail image can be selected easily enough so I'll do that as a workaround. I wonder why it breaks tho? Meh.
+                    actualLinks = img {
+                        withClass = "thumbimage"
+                        findAll {
+                            eachSrc
                         }
-                    }
+                    } as MutableList<String>
                 }
             }
         }
-        return actualLinks?.get(0)
+        // These URLs get the https: part clipped. Add them back in!
+        for (i in 0 until (actualLinks.size)) {
+            actualLinks[i] = "https:" + actualLinks[i]
+        }
+        Log.d(TAG, "webScrapeActualImageUrl: $actualLinks")
+        return actualLinks
     }
 }

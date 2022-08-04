@@ -20,6 +20,9 @@ import it.skrape.selects.html5.img
 class DetailsItemListAdapter(val imageList: List<String>) : RecyclerView.Adapter<DetailsItemListAdapter.DetailsImageViewHolder>() {
     /** A fairly standard Recycler View adapter for the details item list, in the details pane,
      * that shows article images in a carousel-like display.
+     *
+     * Instance attributes:
+     * - imageList: The list of image URLs we plan to load in.
      */
 
     class DetailsImageViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
@@ -42,7 +45,7 @@ class DetailsItemListAdapter(val imageList: List<String>) : RecyclerView.Adapter
         //  Unfortunately since I only have image title and maybe date to work with, I don't think I can easily get the URL.
         //  The thing I can think of right now is to do a tiny bit of webscraping to get the URL from clicking and then use that.
         //  ... sigh...
-        holder.imageView?.load("https://en.wikipedia.org/wiki/Roman_timekeeping#/media/File:Ancient_Roman_time_keeping_hora_vigilia_equinox_solstice.svg")
+        holder.imageView?.load(item)
 
     }
 
