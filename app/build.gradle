@@ -53,6 +53,8 @@ dependencies {
     // Moshi
     implementation "com.squareup.moshi:moshi:1.13.0"
     implementation 'androidx.test.espresso:espresso-contrib:3.4.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.1'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.1'
     kapt "com.squareup.moshi:moshi-kotlin-codegen:1.13.0"
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
 

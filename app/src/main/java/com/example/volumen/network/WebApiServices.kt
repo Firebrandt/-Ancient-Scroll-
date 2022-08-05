@@ -77,7 +77,7 @@ interface MeaningCloudApiService {
     suspend fun getSummarizedText(@Part("key") key: RequestBody = MY_KEY.toRequestBody(PLAINTEXT_MEDIA_TYPE),
                                   @Part("txt") txt: RequestBody,
                                   @Part("lang") lang: RequestBody = "en".toRequestBody(PLAINTEXT_MEDIA_TYPE),
-                                  @Part("limit") limit: Int = 10) : SummarizeQuery
+                                  @Part("limit") limit: Int = 25) : SummarizeQuery
     /** Send a POST request to the MeaningCloud summarize endpoint to retrieve a summary of some text.
      * Do note: It'll always return at least one sentence, conditions permitting.
      *
@@ -88,11 +88,11 @@ interface MeaningCloudApiService {
 object WebApi {
     /** Object used to expose the web services we define here as singletons, since initialising it
      * is expensive and we only need one of each at most. */
-    val wikipediaApiService by lazy {
+    val wikipediaApiService : WikipediaApiService by lazy {
         retrofitWikipedia.create(WikipediaApiService::class.java)
     }
 
-    val meaningCloudApiService by lazy {
+    val meaningCloudApiService: MeaningCloudApiService by lazy {
         retrofitMeaningCloud.create(MeaningCloudApiService::class.java)
     }
 }

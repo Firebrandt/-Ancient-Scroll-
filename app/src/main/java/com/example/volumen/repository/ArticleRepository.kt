@@ -32,12 +32,21 @@ class ArticleRepository {
         var articleText = ""
 
         // Construct article text from heading: contents mapping from kwikipedia. Also summarize.
+        // The headings are weird and tricky to format so leave them out.
+
+        //TODO: Consider integrating heading stuff, although imo it looks weird.
         for ((heading, content) in com.neelkamath.kwikipedia.getPage(title)){
-            articleText = articleText.plus("$heading \n").plus(content)
+            // The see also section's contents look really ugly and aren't useful.
+            if (heading != "See also") {
+                articleText = articleText.plus(" ").plus(content)
+            }
         }
+        articleText = articleText.trim()
 
         val summarizedTextQuery = WebApi.meaningCloudApiService.getSummarizedText(txt =
             articleText.toRequestBody(PLAINTEXT_MEDIA_TYPE))
+
+        // Clean the summarized text so that after every period there is a space.
 
         // Add underscores to the wikipedia page title so its properly formatted for the image URLs.
         // (not strictly necessary for article URL due to redirects but still helpful).
@@ -95,13 +104,7 @@ class ArticleRepository {
          */
 
         // The html class name of the <img> element shown at the MediaViewer page.
-        val MEDIA_VIEWER_IMAGE_WRAPPER_CLASS_NAME = "mw-mmv-image"
         var actualLinks : MutableList<String> = mutableListOf()
-
-        //TODO: It's saying it cannot find the element. Do try to debug this. Maybe nest harder.
-        // Maybe selecting with the CSS will work. I mean it does say CSS selector, right?
-
-        // TODO: I could optimize this and make it less terrible by just urnning one request instead of one for every link. Can probably get 'em all that way.
 
         // Use skrape to parse the site as an HTML document.
         Log.d(TAG, "URL of page to parse: $wikipediaPageUrl")
@@ -114,10 +117,10 @@ class ArticleRepository {
             response {
                 // In this scope everything from the response is made available. We want the document.
                 htmlDocument {
-                    // Parsed document is available in this scope.
 
-                    //TODO: We can find the images and the URLs. Selecting the one I want doesn't seem to be working too well, though.
-                    // Okay. For some reason finding the main image using skrape is hard as fuck. But the thumbnail image can be selected easily enough so I'll do that as a workaround. I wonder why it breaks tho? Meh.
+                    // Okay. For some reason finding the main image using skrape is hard.
+                    // But the thumbnail image can be selected easily enough so I'll do that as a
+                    // workaround. I wonder why it breaks tho? Meh.
                     actualLinks = img {
                         withClass = "thumbimage"
                         findAll {
