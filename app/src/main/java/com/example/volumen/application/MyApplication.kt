@@ -5,8 +5,13 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.SvgDecoder
 import com.example.volumen.R
+import com.example.volumen.data.AppDatabase
+
 
 class MyApplication : Application(), ImageLoaderFactory {
+    /** A custom application class used to provide reference to a few global variables and override
+     * a couple methods across the entire application, at app start.
+      */
 
     // Configure the singleton ImageLoader used by coil in this app in one place (by overriding the factory).
     // That singleton is used by the imageView.load() extension function.
@@ -21,4 +26,10 @@ class MyApplication : Application(), ImageLoaderFactory {
             }
             .build()
     }
+
+    // Expose the app database, which will create it on the disk at first access.
+    val appDatabase: AppDatabase by lazy {
+        AppDatabase.getDatabase(this)
+    }
+
 }

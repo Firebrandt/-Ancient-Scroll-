@@ -11,19 +11,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.volumen.R
 import com.example.volumen.adapters.DetailsItemListAdapter
 import com.example.volumen.adapters.ItemListAdapter
+import com.example.volumen.application.MyApplication
 import com.example.volumen.data.Article
 import com.example.volumen.databinding.FragmentItemDetailBinding
 import com.example.volumen.viewModels.ItemViewModel
+import com.example.volumen.viewModels.ItemViewModelFactory
 
 private const val TAG = "ItemDetailFragment"
 class ItemDetailFragment : Fragment() {
 
-    private val viewModel: ItemViewModel by activityViewModels()
+    // UGH! Accidentally made a fragment-level view model instead of an activity level one,
+    // de-syncing the two. Ew! Ew! Ew! Ew! Ew! Ew!!!
+    private val viewModel: ItemViewModel by activityViewModels(){
+        val appDatabase = (activity?.application as MyApplication).appDatabase
+        ItemViewModelFactory(appDatabase.getArticleDao(),
+            appDatabase.getImageUrlsDao(),
+            appDatabase.getJunctionsDao())
+    }
+
     private lateinit var binding: FragmentItemDetailBinding
 
     override fun onCreateView(

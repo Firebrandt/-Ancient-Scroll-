@@ -1,5 +1,7 @@
 package com.example.volumen.NetworkTests
 
+import com.example.volumen.application.MyApplication
+import com.example.volumen.data.AppDatabase
 import com.example.volumen.data.Link
 import com.example.volumen.network.PLAINTEXT_MEDIA_TYPE
 import com.example.volumen.network.WebApi
@@ -8,7 +10,9 @@ import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.junit.Before
 import org.junit.Test
+import org.mockito.Mock
 
 private const val MY_EXAMPLE_TEXT = "Regiments of Greatswords garrison the castles of the Elector Counts and form their lord's honour guard on state occasions. These grim men are equipped with huge two-handed swords called zweihanders that can cleave an armoured Knight in twain with one blow. Greatswords are also adorned with superb suits of Dwarf-forged plate armour, for these elite troops are expected to fight in the thick of the bloodiest and most dangerous combats of a battle. Upon a soldier's induction into the esteemed ranks of the Greatswords, he is required to swear an oath never to take a backwards step in the face of the enemy. Every regiment of Greatswords has its own particular punishment for those who fail in their duty. However, such instances are extremely rare, and the history of the Empire is replete with heroic tales of regiments of Greatswords that have died to a man to protect the life of their liege lord, even after the rest of their army had been butchered."
 
@@ -118,11 +122,17 @@ class NetworkTests {
          * TODO: These seem to work for a basic case.
          */
 
+        @Mock
+        private lateinit var application: MyApplication
+        private val articleDao = application.appDatabase.getArticleDao()
+        private val imgUrlsDao = application.appDatabase.getImageUrlsDao()
+        private val junctionDao = application.appDatabase.getJunctionsDao()
+
         @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun manual_test_getArticle() = runTest {
             val testTitle = "Gelmi"
-            val finalArticle = ArticleRepository().getArticle(testTitle)
+            val finalArticle = ArticleRepository(articleDao, imgUrlsDao, junctionDao).getArticle(testTitle)
             assertEquals(finalArticle, finalArticle)
         }
 
@@ -130,7 +140,7 @@ class NetworkTests {
         @Test
         fun manual_test_queryRelatedPages() = runTest {
             val testTitle = "Gelmi"
-            val relatedArticles = ArticleRepository().getRelatedPages(testTitle)
+            val relatedArticles = ArticleRepository(articleDao, imgUrlsDao, junctionDao).getRelatedPages(testTitle)
             assertEquals(relatedArticles, relatedArticles)
         }
     }
