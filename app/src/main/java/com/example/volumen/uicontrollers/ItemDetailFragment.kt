@@ -25,6 +25,7 @@ import com.example.volumen.data.Article
 import com.example.volumen.databinding.FragmentItemDetailBinding
 import com.example.volumen.viewModels.ItemViewModel
 import com.example.volumen.viewModels.ItemViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 
 private const val TAG = "ItemDetailFragment"
 class ItemDetailFragment : Fragment() {
@@ -104,7 +105,9 @@ class ItemDetailFragment : Fragment() {
         try {
             startActivity(articleIntent)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(requireContext(), "We couldn't find an app that could launch the wikipedia link.", Toast.LENGTH_SHORT).show()
+            Snackbar.make(binding.root,
+                "We couldn't find an app that could launch the wikipedia link.",
+                Snackbar.LENGTH_SHORT).show()
         }
     }
 

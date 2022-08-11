@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="@string/clear_everything_item_title"
+        android:icon="@drawable/ic_baseline_delete_24"
+        app:showAsAction="ifRoom"
+        android:id="@+id/clear_everything_item"
+        />
+
+    <item
+        android:title="@string/load_background_item_title"
+        android:icon="@drawable/ic_baseline_system_update_alt_24"
+        android:id="@+id/load_background_item"
+        app:showAsAction="ifRoom"/>
+</menu>

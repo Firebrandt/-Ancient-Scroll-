@@ -9,6 +9,8 @@ import com.example.volumen.data.ArticleDao
 import com.example.volumen.data.ImageUrlsDao
 import com.example.volumen.data.JunctionDao
 import com.example.volumen.repository.ArticleRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 //TODO: This is prone to break if the page title is edited at any time.
 // Later on put in some logic for this I suppose. Use pageID. Maybe.
@@ -58,7 +60,9 @@ class ItemViewModel(val articleDao: ArticleDao, imageUrlsDao: ImageUrlsDao, junc
 
     fun clearCache(){
         /** Clears the entire local database of everything. Careful with this! **/
-        repository.clearCache()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearCache()
+        }
     }
 }
 
