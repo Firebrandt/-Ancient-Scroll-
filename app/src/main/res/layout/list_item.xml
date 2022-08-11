@@ -12,6 +12,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/list_card"
         android:layout_width="match_parent"
+        android:layout_margin="8dp"
         android:layout_height="200dp">
 
         <LinearLayout
@@ -26,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:importantForAccessibility="no"
                 app:imageUrl="@{article.imageList[0]}"
-                android:scaleType="centerCrop"
+                android:scaleType="center"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView

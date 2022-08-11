@@ -77,7 +77,7 @@ interface MeaningCloudApiService {
     suspend fun getSummarizedText(@Part("key") key: RequestBody = MY_KEY.toRequestBody(PLAINTEXT_MEDIA_TYPE),
                                   @Part("txt") txt: RequestBody,
                                   @Part("lang") lang: RequestBody = "en".toRequestBody(PLAINTEXT_MEDIA_TYPE),
-                                  @Part("limit") limit: Int = 25) : SummarizeQuery
+                                  @Part("limit") limit: Int = 20) : SummarizeQuery
     /** Send a POST request to the MeaningCloud summarize endpoint to retrieve a summary of some text.
      * Do note: It'll always return at least one sentence, conditions permitting.
      *

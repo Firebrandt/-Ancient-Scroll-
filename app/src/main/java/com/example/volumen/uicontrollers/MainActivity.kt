@@ -2,6 +2,9 @@ package com.example.volumen.uicontrollers
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -106,6 +109,31 @@ class MainActivity : AppCompatActivity() {
         }
         supportActionBar?.title = actualTitle.joinToString(" ")
         binding.slidingPane.open()
+    }
+
+    // Sets up the menu and its items for the MainActivity by inflating a resource file.
+    // Note: although I don't use it here, I can UPDATE the created instance of the options menu
+    // via onPrepareOptionsMenu(), if I want to modify it after creation. Don't just re-call this.
+    // Prompt onPrepareOptionsMenu() by calling invalidateOptionsMenu().
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // inflates INTO this activity's menu
+        menuInflater.inflate(R.menu.options_menu, menu)
+        return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.clear_cache_item -> {
+                viewModel.clearCache()
+                true
+            }
+            R.id.load_background_item -> {
+                // TODO: Load stuff in the background here.
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     inner class SlidingPaneOnBackPressedCallback(private val slidingPaneLayout: SlidingPaneLayout) :
