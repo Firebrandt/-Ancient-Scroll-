@@ -55,6 +55,7 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-contrib:3.4.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.1'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.1'
+    implementation 'com.google.firebase:firebase-components:17.0.0'
     kapt "com.squareup.moshi:moshi-kotlin-codegen:1.13.0"
     implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
 
@@ -71,7 +72,7 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.8.0'
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
 
     implementation 'com.google.android.material:material:1.6.1'
 
@@ -118,4 +119,10 @@ dependencies {
     testImplementation "org.mockito:mockito-core:4.6.1"
     androidTestImplementation "org.mockito:mockito-android:4.6.1"
 
+    // Workmanager stuff for background loading.
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
+    androidTestImplementation("androidx.work:work-testing:2.7.1")
+
+    // Fix a dependency conflict
+    implementation 'com.google.guava:guava:29.0-android'
 }

@@ -19,7 +19,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val TAG = "Repository"
 private const val WIKIPEDIA_PAGE_URL_PREFIX = "https://en.wikipedia.org/wiki/"
-
+private const val ARTICLES_AT_A_TIME = 1
 
 class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsDao, val junctionDao: JunctionDao) {
     /** Repository class meant to provide a clean API for several data sources, resolve conflicts,
@@ -131,7 +131,7 @@ class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsD
         for (link in relatedPages) {
             // Skip empty articles. Note that this function gives us a map, not text.
             val articleTextMap = com.neelkamath.kwikipedia.getPage(link.linkedTitle)
-            if (articleList.size == 1){
+            if (articleList.size == ARTICLES_AT_A_TIME){
                 break
             }
 

@@ -49,8 +49,10 @@ class ItemDetailFragment : Fragment() {
         // Set up the data binding once we've initialized stuff.
         binding = FragmentItemDetailBinding.inflate(layoutInflater, container, false)
         binding.myViewModel = viewModel
+
         // Include a reference to the fragment purely to data bind on click listeners.
         binding.itemDetailFragment = this
+
         // Remember we need to pass the binding a life cycle owner for it to auto-update properly.
         binding.lifecycleOwner = viewLifecycleOwner
 

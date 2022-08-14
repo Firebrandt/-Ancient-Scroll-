@@ -1,5 +1,6 @@
 package com.example.volumen.uicontrollers
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -10,28 +11,38 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.test.espresso.idling.CountingIdlingResource
+import androidx.work.*
 import com.example.volumen.R
 import com.example.volumen.adapters.ItemListAdapter
 import com.example.volumen.application.MyApplication
 import com.example.volumen.data.Article
 import com.example.volumen.databinding.ActivityMainBinding
+import com.example.volumen.repository.ArticleRepository
 import com.example.volumen.viewModels.ItemViewModel
 import com.example.volumen.viewModels.ItemViewModelFactory
+import com.example.volumen.work.worker.BackgroundLoadWorker
 import com.google.android.material.snackbar.Snackbar
+import com.google.common.net.InetAddresses.decrement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
+import okhttp3.internal.wait
 
 private const val TAG = "MainActivity"
-
+private const val LOAD_IN_BACKGROUND = "Load article data from background"
 // Used for instrumentation tests.
 val articleIdlingRes: CountingIdlingResource = CountingIdlingResource("Loading Articles")
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var workManager : WorkManager
     private val viewModel: ItemViewModel by viewModels(){
         val appDatabase = (application as MyApplication).appDatabase
         ItemViewModelFactory(appDatabase.getArticleDao(),
@@ -46,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        workManager = WorkManager.getInstance(this)
 
         // Set up the action bar title
         supportActionBar?.title = getString(R.string.app_name)
@@ -55,39 +67,69 @@ class MainActivity : AppCompatActivity() {
         this.onBackPressedDispatcher.addCallback(SlidingPaneOnBackPressedCallback(binding.slidingPane))
 
         // Now set up the recycler view and load in the data. Cached stuff first, then online stuff.
+        var dataset: List<Article> = listOf()
+        val adapter = ItemListAdapter(::handleClickedListItem)
+
         lifecycleScope.launch(Dispatchers.IO) {
             // Tell espresso to wait for this task to finish before continuing:
             articleIdlingRes.increment()
 
             // TODO: Clear the cache for now.
-            // viewModel.clearCache()
+            viewModel.clearCache()
 
-            val adapter = ItemListAdapter(::handleClickedListItem)
+            // Set up the recycler view adapter
             binding.itemList.adapter = adapter
             binding.itemList.layoutManager = LinearLayoutManager(this@MainActivity)
 
-            val dataset = viewModel.getCachedData() as MutableList<Article>
-
-
-            Log.d(TAG, "onCreate: Dataset after cache is $dataset")
-            withContext(Dispatchers.Main) {
+            // Try loading previously retrieved articles from the Room Database, if applicable.
+            dataset = viewModel.getCachedData() as MutableList<Article>
+            withContext(Dispatchers.Main){
                 adapter.submitList(dataset)
             }
+            Log.d(TAG, "onCreate: Dataset after cache check is $dataset")
 
-            val afterOnlineLoadData = dataset + viewModel.getOnlineData()
+            // If the dataset is EMPTY, we have no articles, load some new ones from the background.
+            if (dataset.isEmpty()) {
+                val backgroundLoadRequest = OneTimeWorkRequestBuilder<BackgroundLoadWorker>()
+                    .build()
 
+                // Enqueue it as unique work so we don't try to fetch it several times at once
+                // if something weird happens.
+                workManager.enqueueUniqueWork(
+                    LOAD_IN_BACKGROUND,
+                    ExistingWorkPolicy.REPLACE, backgroundLoadRequest)
 
-            Log.d(TAG, "onCreate: Dataset after online loading is ${dataset} ")
+                Log.i(TAG, "onCreate: We've enqueued the online load work. Take a break!")
 
-            withContext(Dispatchers.Main) {
-                // We have to make a new list here, because submitList will IGNORE resubmissions of
-                // the same list object. Even if the lists really are different. :(
-                adapter.submitList(afterOnlineLoadData)
             }
 
-            Log.i(TAG, "onCreate: Finished loading MainActivity recycler view :)")
-            // Tell espresso the loading is done and we're good :)
-            articleIdlingRes.decrement()
+        }
+
+        val backgroundLoadStatus = workManager.getWorkInfosForUniqueWorkLiveData(LOAD_IN_BACKGROUND)
+        backgroundLoadStatus.observe(this) {
+            Log.d(TAG, "Load status changed: $it")
+            it?.let {
+                // We only queued one request/task.
+                if (it.isNotEmpty()) {
+                    val workState = it[0]
+
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        dataset = viewModel.getCachedData() as MutableList<Article>
+                        if (workState.state == WorkInfo.State.SUCCEEDED) {
+                            withContext(Dispatchers.Main) {
+                                // submitList only updates on a NEW list, so we circumvent a Google technicality.
+                                adapter.submitList(dataset.toList())
+                                // Tell espresso the loading is done and we're good :)
+                                // Sometimes workState.state == SUCCEEDED when we restart, randomly.
+                                // Only decrement when
+                                if (dataset.isNotEmpty()) {
+                                    articleIdlingRes.decrement()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -184,5 +226,7 @@ class MainActivity : AppCompatActivity() {
             return articleIdlingRes
         }
     }
+
 }
+
 
