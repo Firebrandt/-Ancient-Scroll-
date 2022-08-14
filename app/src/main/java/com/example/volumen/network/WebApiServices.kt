@@ -52,9 +52,6 @@ val retrofitMeaningCloud = Retrofit.Builder()
     .client(client)
     .build()
 
-
-
-
 interface WikipediaApiService {
     /** An interfacing defining how Retrofit will interact with the Wikipedia API.
      * Recall that GET requests specify the endpoint of the request.

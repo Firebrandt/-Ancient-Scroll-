@@ -1,14 +1,19 @@
 package com.example.volumen.application
 
 import android.app.Application
+import androidx.work.Configuration
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.SvgDecoder
 import com.example.volumen.R
 import com.example.volumen.data.AppDatabase
+import com.example.volumen.repository.ArticleRepository
+import com.example.volumen.uicontrollers.MainActivity
+import com.example.volumen.work.worker.BackgroundLoadWorker
+import com.example.volumen.work.worker.BackgroundLoadWorkerFactory
 
 
-class MyApplication : Application(), ImageLoaderFactory {
+class MyApplication : Application(), ImageLoaderFactory, Configuration.Provider {
     /** A custom application class used to provide reference to a few global variables and override
      * a couple methods across the entire application, at app start.
       */
@@ -30,6 +35,17 @@ class MyApplication : Application(), ImageLoaderFactory {
     // Expose the app database, which will create it on the disk at first access.
     val appDatabase: AppDatabase by lazy {
         AppDatabase.getDatabase(this)
+    }
+
+    // Create a custom configuration for workManager, so we can make custom workers w/ new attributes.
+    override fun getWorkManagerConfiguration(): Configuration {
+        return Configuration.Builder()
+            .setWorkerFactory(BackgroundLoadWorkerFactory(ArticleRepository(
+                appDatabase.getArticleDao(),
+                appDatabase.getImageUrlsDao(),
+                appDatabase.getJunctionsDao()
+            )))
+            .build()
     }
 
 }
