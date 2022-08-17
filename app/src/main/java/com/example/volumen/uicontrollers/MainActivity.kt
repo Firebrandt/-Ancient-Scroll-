@@ -76,9 +76,6 @@ class MainActivity : AppCompatActivity() {
             // Tell espresso to wait for initial loading to finish before continuing:
             articleIdlingRes.increment()
 
-            // TODO: Clear the cache for now.
-            viewModel.clearCache()
-
             // Set up the recycler view adapter
             binding.itemList.adapter = adapter
             binding.itemList.layoutManager = LinearLayoutManager(this@MainActivity)
@@ -90,12 +87,13 @@ class MainActivity : AppCompatActivity() {
             }
             Log.d(TAG, "onCreate: Dataset after cache check is $dataset")
 
-            // If the dataset is EMPTY, we have no articles, load some new ones from the background.
-            Snackbar.make(binding.root, "We found nothing in the database, and will instead fetch" +
-                    "stuff from the internet. This WILL TAKE A WHILE, so exit the app and come back " +
-                    "to it later.", Snackbar.LENGTH_LONG).show()
+
 
             if (dataset.isEmpty()) {
+                // If the dataset is EMPTY, we have no articles, load some new ones from the background.
+                Snackbar.make(binding.root, "We found nothing in the database, and will instead fetch" +
+                        "stuff from the internet. This WILL TAKE A WHILE, so exit the app and come back " +
+                        "to it later.", Snackbar.LENGTH_LONG).show()
                 loadOnlineArticle()
             }
 
@@ -119,8 +117,11 @@ class MainActivity : AppCompatActivity() {
                                 adapter.submitList(dataset.toList())
                                 // Tell espresso the loading is done and we're good :)
                                 // Sometimes workState.state == SUCCEEDED when we restart, randomly.
-                                // Only decrement when we actually have no data or it breaks.
-                                if (dataset.isNotEmpty()) {
+                                // Only decrement when we actually have no data, and the idling resource
+                                // is not idle. The reason I do this is because this observer can fire
+                                // When we don't expect it to (despite there not actually being a thing
+                                // that espresso has to wait for), due to residual WorkState statuses.
+                                if (dataset.isNotEmpty() && !articleIdlingRes.isIdleNow) {
                                     articleIdlingRes.decrement()
                                 }
                             }
