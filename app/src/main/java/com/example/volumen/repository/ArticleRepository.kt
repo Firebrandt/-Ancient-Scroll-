@@ -16,6 +16,7 @@ import it.skrape.selects.eachSrc
 import it.skrape.selects.html5.div
 import it.skrape.selects.html5.img
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlin.random.Random
 
 private const val TAG = "Repository"
 private const val WIKIPEDIA_PAGE_URL_PREFIX = "https://en.wikipedia.org/wiki/"
@@ -116,8 +117,8 @@ class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsD
     }
 
     suspend fun getRelatedPages(title: String) : List<Article> {
-        /** Generate a list of Articles for wikipedia pages that are linked on this one, and whose
-         * titles DO NOT appear in the cache (to avoid possible duplicate work). To fully reload
+        /** Generate a random list of Articles for wikipedia pages that are linked on this one,
+         * and whose titles DO NOT appear in the cache (to avoid possible duplicate work). To fully reload
          * those pages, clear them from the cache.
          *
          * This is primarily useful for sourcing a large number of wikipedia Articles from a central
@@ -125,6 +126,7 @@ class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsD
          */
 
         val relatedPages = WebApi.wikipediaApiService.queryPage(title).parsed.relatedPages
+            .shuffled(Random(137))
         val cachedPages = articleDao.getTitlesInCache()
 
         val articleList = mutableListOf<Article>()

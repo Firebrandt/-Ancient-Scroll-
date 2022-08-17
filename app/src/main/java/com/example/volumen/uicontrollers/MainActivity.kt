@@ -52,6 +52,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
 
+    // Used to track the status of loading articles from various sources.
+    private lateinit var backgroundLoadStatus : LiveData<MutableList<WorkInfo>>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -67,11 +70,10 @@ class MainActivity : AppCompatActivity() {
         this.onBackPressedDispatcher.addCallback(SlidingPaneOnBackPressedCallback(binding.slidingPane))
 
         // Now set up the recycler view and load in the data. Cached stuff first, then online stuff.
-        var dataset: List<Article> = listOf()
         val adapter = ItemListAdapter(::handleClickedListItem)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            // Tell espresso to wait for this task to finish before continuing:
+            // Tell espresso to wait for initial loading to finish before continuing:
             articleIdlingRes.increment()
 
             // TODO: Clear the cache for now.
@@ -82,30 +84,26 @@ class MainActivity : AppCompatActivity() {
             binding.itemList.layoutManager = LinearLayoutManager(this@MainActivity)
 
             // Try loading previously retrieved articles from the Room Database, if applicable.
-            dataset = viewModel.getCachedData() as MutableList<Article>
+            val dataset = viewModel.getCachedData() as MutableList<Article>
             withContext(Dispatchers.Main){
                 adapter.submitList(dataset)
             }
             Log.d(TAG, "onCreate: Dataset after cache check is $dataset")
 
             // If the dataset is EMPTY, we have no articles, load some new ones from the background.
+            Snackbar.make(binding.root, "We found nothing in the database, and will instead fetch" +
+                    "stuff from the internet. This WILL TAKE A WHILE, so exit the app and come back " +
+                    "to it later.", Snackbar.LENGTH_LONG).show()
+
             if (dataset.isEmpty()) {
-                val backgroundLoadRequest = OneTimeWorkRequestBuilder<BackgroundLoadWorker>()
-                    .build()
-
-                // Enqueue it as unique work so we don't try to fetch it several times at once
-                // if something weird happens.
-                workManager.enqueueUniqueWork(
-                    LOAD_IN_BACKGROUND,
-                    ExistingWorkPolicy.REPLACE, backgroundLoadRequest)
-
-                Log.i(TAG, "onCreate: We've enqueued the online load work. Take a break!")
-
+                loadOnlineArticle()
             }
 
+            articleIdlingRes.decrement()
         }
 
-        val backgroundLoadStatus = workManager.getWorkInfosForUniqueWorkLiveData(LOAD_IN_BACKGROUND)
+        Log.d(TAG, "onCreate: Attempting to set observer. It should be up soonish?")
+        backgroundLoadStatus = workManager.getWorkInfosForUniqueWorkLiveData(LOAD_IN_BACKGROUND)
         backgroundLoadStatus.observe(this) {
             Log.d(TAG, "Load status changed: $it")
             it?.let {
@@ -114,14 +112,14 @@ class MainActivity : AppCompatActivity() {
                     val workState = it[0]
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        dataset = viewModel.getCachedData() as MutableList<Article>
+                        val dataset = viewModel.getCachedData() as MutableList<Article>
                         if (workState.state == WorkInfo.State.SUCCEEDED) {
                             withContext(Dispatchers.Main) {
                                 // submitList only updates on a NEW list, so we circumvent a Google technicality.
                                 adapter.submitList(dataset.toList())
                                 // Tell espresso the loading is done and we're good :)
                                 // Sometimes workState.state == SUCCEEDED when we restart, randomly.
-                                // Only decrement when
+                                // Only decrement when we actually have no data or it breaks.
                                 if (dataset.isNotEmpty()) {
                                     articleIdlingRes.decrement()
                                 }
@@ -131,8 +129,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
+    private fun loadOnlineArticle(){
+        /** Fetches an Article from the internet using WorkManager to perform the long-running
+         * task while the app is in the background (possibly. It will still work while the app
+         * is in the foreground).
+         *
+         * Adds the article to the given dataset list.
+         */
+        // Tell espresso to wait for articles to fully co
+        // mplete before continuing (decremented when
+        // the article is received and the list updated).
+        articleIdlingRes.increment()
+        val backgroundLoadRequest = OneTimeWorkRequestBuilder<BackgroundLoadWorker>()
+            .build()
 
+        // Enqueue it as unique work so we don't try to enact it several times at once
+        // if something weird happens.
+        workManager.enqueueUniqueWork(
+            LOAD_IN_BACKGROUND,
+            ExistingWorkPolicy.REPLACE, backgroundLoadRequest)
+
+        Log.i(TAG, "onCreate: We've enqueued the online load work. Take a break!")
     }
 
     private fun handleClickedListItem(clickedArticle: Article) {
@@ -177,7 +196,10 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.load_background_item -> {
-                // TODO: Load stuff in the background here.
+                // Load another article. Let the user know this'll take a while.
+                loadOnlineArticle()
+                Snackbar.make(binding.root, "Hey, this could take a while. Feel free to do something else" +
+                        "and come back later, a new article should be loaded in by then.", Snackbar.LENGTH_LONG).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
