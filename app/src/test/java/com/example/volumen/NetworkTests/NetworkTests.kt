@@ -1,17 +1,25 @@
+@file:Suppress("unused")
+
 package com.example.volumen.NetworkTests
 
+import android.content.Context
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.runner.AndroidJUnit4
 import com.example.volumen.application.MyApplication
-import com.example.volumen.data.AppDatabase
-import com.example.volumen.data.Link
+import com.example.volumen.data.*
 import com.example.volumen.network.PLAINTEXT_MEDIA_TYPE
 import com.example.volumen.network.WebApi
 import com.example.volumen.repository.ArticleRepository
 import junit.framework.Assert.assertEquals
+import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mock
 
 private const val MY_EXAMPLE_TEXT = "Regiments of Greatswords garrison the castles of the Elector Counts and form their lord's honour guard on state occasions. These grim men are equipped with huge two-handed swords called zweihanders that can cleave an armoured Knight in twain with one blow. Greatswords are also adorned with superb suits of Dwarf-forged plate armour, for these elite troops are expected to fight in the thick of the bloodiest and most dangerous combats of a battle. Upon a soldier's induction into the esteemed ranks of the Greatswords, he is required to swear an oath never to take a backwards step in the face of the enemy. Every regiment of Greatswords has its own particular punishment for those who fail in their duty. However, such instances are extremely rare, and the history of the Empire is replete with heroic tales of regiments of Greatswords that have died to a man to protect the life of their liege lord, even after the rest of their army had been butchered."
@@ -19,7 +27,6 @@ private const val MY_EXAMPLE_TEXT = "Regiments of Greatswords garrison the castl
 // assuming settings in the test.
 private const val MY_EXAMPLE_TEXT_SUMMARY = "Regiments of Greatswords garrison the castles of the Elector Counts and form their lord's honour guard on state occasions. Every regiment of Greatswords has its own particular punishment for those who fail in their duty."
 
-private const val TAG = "NetworkTests"
 class NetworkTests {
     /** A class storing tests for the app's functionality to fetch data from the network.
      *
@@ -52,7 +59,7 @@ class NetworkTests {
             /** Test the WikipediaApi's ability to query a page with both links and images. **/
             val fixedRevisionID = 1097532676
             val expectedPageTitle = "Gelmi"
-            val expectedPageLinks = listOf<Link>(Link("Talk:Gelmi"), Link("Given name"), Link("Italian surname"), Link("Ludovico Gelmi"), Link("Roy Gelmi"), Link("Surname"), Link("Wikipedia:Manual of Style/Linking"))
+            val expectedPageLinks = listOf(Link("Talk:Gelmi"), Link("Given name"), Link("Italian surname"), Link("Ludovico Gelmi"), Link("Roy Gelmi"), Link("Surname"), Link("Wikipedia:Manual of Style/Linking"))
             val expectedPageImages = listOf("WPanthroponymy.svg")
             val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
 
@@ -67,7 +74,7 @@ class NetworkTests {
             /** Test the WikipediaApi's ability to query a page with no images. **/
             val fixedRevisionID = 1099563720
             val expectedPageTitle = "Free information"
-            val expectedPageLinks = listOf<Link>(Link("Free content"), Link("Information wants to be free"))
+            val expectedPageLinks = listOf(Link("Free content"), Link("Information wants to be free"))
             val expectedPageImages = listOf<String>()
             val testQuery = WebApi.wikipediaApiService.queryPage(revisionId = fixedRevisionID)
 
@@ -145,6 +152,5 @@ class NetworkTests {
         }
     }
 
-
-
 }
+

@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.gargoylesoftware.htmlunit.javascript.host.intl.Intl
 
 @Entity(tableName = "summarized_article")
 data class Article (

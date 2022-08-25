@@ -4,4 +4,8 @@
     <string name="details_pane_label">{viewModel.currentArticle.title}</string>
     <string name="clear_everything_item_title">Clear everything!!</string>
     <string name="load_background_item_title">Load articles in background</string>
+    <string name="notification_channel_name">Ancient Scroll</string>
+    <string name="notification_channel_desc">Ancient Scroll Notification Channel</string>
+    <string name="load_background_notification_text">"This notification will disappear when it's done."</string>
+    <string name="load_background_notification_title">"Background article loading has begun!"</string>
 </resources>

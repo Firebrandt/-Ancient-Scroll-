@@ -95,7 +95,7 @@ dependencies {
     implementation("io.coil-kt:coil-svg:2.1.0")
 
     // Activity & Fragment for the Kotlin property delegates with view model provider.
-    implementation "androidx.fragment:fragment-ktx:1.5.1"
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
     implementation "androidx.activity:activity-ktx:1.5.1"
 
     testImplementation 'junit:junit:4.13.2'
@@ -125,4 +125,8 @@ dependencies {
 
     // Fix a dependency conflict
     implementation 'com.google.guava:guava:29.0-android'
+
+    // More instrumentation tests!
+    androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
+
 }

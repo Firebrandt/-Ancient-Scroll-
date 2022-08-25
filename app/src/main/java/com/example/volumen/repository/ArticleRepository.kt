@@ -1,19 +1,14 @@
 package com.example.volumen.repository
 
-import android.app.Application
 import android.util.Log
-import com.example.volumen.application.MyApplication
 import com.example.volumen.data.*
 import com.example.volumen.network.PLAINTEXT_MEDIA_TYPE
 import com.example.volumen.network.WebApi
 import it.skrape.core.htmlDocument
-import it.skrape.fetcher.AsyncFetcher
 import it.skrape.fetcher.HttpFetcher
 import it.skrape.fetcher.response
 import it.skrape.fetcher.skrape
-import it.skrape.selects.and
 import it.skrape.selects.eachSrc
-import it.skrape.selects.html5.div
 import it.skrape.selects.html5.img
 import okhttp3.RequestBody.Companion.toRequestBody
 import kotlin.random.Random
@@ -22,13 +17,14 @@ private const val TAG = "Repository"
 private const val WIKIPEDIA_PAGE_URL_PREFIX = "https://en.wikipedia.org/wiki/"
 private const val ARTICLES_AT_A_TIME = 1
 
-class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsDao, val junctionDao: JunctionDao) {
+class ArticleRepository(private val articleDao: ArticleDao, private val imageUrlsDao: ImageUrlsDao, private val junctionDao: JunctionDao) {
     /** Repository class meant to provide a clean API for several data sources, resolve conflicts,
      * and hide implementation details of the 'data layer' work like working with a database. **/
 
-    suspend fun getCachedArticles() : List<Article> {
+    fun getCachedArticles() : List<Article> {
         /** Returns a List<Article> consisting of all articles in the Room Database used as the
-         * app's cache.  **/
+         * app's cache. Including the attached images that aren't stored in the summarize_article
+         * table! **/
         val incompleteArticles = articleDao.selectAll()
         val completeArticles = mutableListOf<Article>()
         for (article in incompleteArticles){
@@ -85,7 +81,7 @@ class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsD
         return returnedArticle
     }
 
-     suspend fun cacheArticle(article: Article) {
+     private fun cacheArticle(article: Article) {
         /** Cache an article with its list of images (with the list being stored via a junction
          * table since order is irrelevant, per SQLite best practise).
          */
@@ -99,13 +95,12 @@ class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsD
         }
     }
 
-    suspend fun getArticleFromCache(articleId: Long) : Article {
+    private fun getArticleFromCache(articleId: Long) : Article {
         /** Retrieve an Article and its accompanying image list from the cache. Ensures that
          * the image list is actually linked with the Article properly in the returned object.
          * Because we use a junction table (and don't store the list directly), we have to kind of
          * reconstruct the list using this method.
          */
-
         val articleNoImage = articleDao.findById(articleId)
         val imageIdList = junctionDao.findImageIdsByArticleId(articleNoImage.id)
         val imageUrlList = mutableListOf<String>()
@@ -203,3 +198,4 @@ class ArticleRepository(val articleDao: ArticleDao, val imageUrlsDao: ImageUrlsD
         return actualLinks
     }
 }
+

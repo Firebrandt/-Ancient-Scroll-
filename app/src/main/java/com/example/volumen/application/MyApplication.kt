@@ -8,8 +8,6 @@ import coil.decode.SvgDecoder
 import com.example.volumen.R
 import com.example.volumen.data.AppDatabase
 import com.example.volumen.repository.ArticleRepository
-import com.example.volumen.uicontrollers.MainActivity
-import com.example.volumen.work.worker.BackgroundLoadWorker
 import com.example.volumen.work.worker.BackgroundLoadWorkerFactory
 
 

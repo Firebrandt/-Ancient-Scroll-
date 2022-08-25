@@ -2,9 +2,7 @@ package com.example.volumen.bindingAdapters
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.example.volumen.R
 
 //TODO: Adding error handling would be nice here to give the user some status updates.
 

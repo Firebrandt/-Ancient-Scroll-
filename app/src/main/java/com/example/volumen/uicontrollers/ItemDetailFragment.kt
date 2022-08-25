@@ -5,23 +5,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat.startActivity
-import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.volumen.R
 import com.example.volumen.adapters.DetailsItemListAdapter
-import com.example.volumen.adapters.ItemListAdapter
 import com.example.volumen.application.MyApplication
-import com.example.volumen.data.Article
 import com.example.volumen.databinding.FragmentItemDetailBinding
 import com.example.volumen.viewModels.ItemViewModel
 import com.example.volumen.viewModels.ItemViewModelFactory
@@ -32,7 +23,7 @@ class ItemDetailFragment : Fragment() {
 
     // UGH! Accidentally made a fragment-level view model instead of an activity level one,
     // de-syncing the two. Ew! Ew! Ew! Ew! Ew! Ew!!!
-    private val viewModel: ItemViewModel by activityViewModels(){
+    private val viewModel: ItemViewModel by activityViewModels {
         val appDatabase = (activity?.application as MyApplication).appDatabase
         ItemViewModelFactory(appDatabase.getArticleDao(),
             appDatabase.getImageUrlsDao(),
@@ -44,7 +35,7 @@ class ItemDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Set up the data binding once we've initialized stuff.
         binding = FragmentItemDetailBinding.inflate(layoutInflater, container, false)
@@ -75,7 +66,7 @@ class ItemDetailFragment : Fragment() {
         viewModel.currentArticle.observe(viewLifecycleOwner) {
             Log.i(
                 TAG,
-                "onCreateView: We're actually observing the article change! ${it} is the one that appears to have updated."
+                "onCreateView: We're actually observing the article change! $it is the one that appears to have updated."
             )
 
             val adapter = DetailsItemListAdapter(it.imageList ?: listOf())

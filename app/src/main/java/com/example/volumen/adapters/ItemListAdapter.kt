@@ -5,11 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.volumen.R
 import com.example.volumen.data.Article
 import com.example.volumen.databinding.ListItemBinding
 
-class ItemListAdapter(val updateViewModel: (Article) -> Unit) : ListAdapter<Article, ItemListAdapter.ItemViewHolder>(DiffCallback) {
+class ItemListAdapter(private val updateViewModel: (Article) -> Unit) : ListAdapter<Article, ItemListAdapter.ItemViewHolder>(DiffCallback) {
     /** A fairly standard ListAdapter meant to serve the itemList recycler view.
      * updateViewModel is passed in to be used as an onClickListener for view model updating with
      * a clicked article.

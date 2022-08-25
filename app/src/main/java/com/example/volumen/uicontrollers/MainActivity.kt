@@ -1,18 +1,18 @@
 package com.example.volumen.uicontrollers
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.slidingpanelayout.widget.SlidingPaneLayout
@@ -23,27 +23,23 @@ import com.example.volumen.adapters.ItemListAdapter
 import com.example.volumen.application.MyApplication
 import com.example.volumen.data.Article
 import com.example.volumen.databinding.ActivityMainBinding
-import com.example.volumen.repository.ArticleRepository
 import com.example.volumen.viewModels.ItemViewModel
 import com.example.volumen.viewModels.ItemViewModelFactory
 import com.example.volumen.work.worker.BackgroundLoadWorker
 import com.google.android.material.snackbar.Snackbar
-import com.google.common.net.InetAddresses.decrement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
-import okhttp3.internal.wait
 
 private const val TAG = "MainActivity"
 private const val LOAD_IN_BACKGROUND = "Load article data from background"
 // Used for instrumentation tests.
-val articleIdlingRes: CountingIdlingResource = CountingIdlingResource("Loading Articles")
+const val BACKGROUND_LOAD_CHANNEL_ID = "Background Load"
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var workManager : WorkManager
-    private val viewModel: ItemViewModel by viewModels(){
+    private lateinit var workManager : WorkManager
+    private val viewModel: ItemViewModel by viewModels {
         val appDatabase = (application as MyApplication).appDatabase
         ItemViewModelFactory(appDatabase.getArticleDao(),
             appDatabase.getImageUrlsDao(),
@@ -60,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        createNotificationChannel()
         workManager = WorkManager.getInstance(this)
 
         // Set up the action bar title
@@ -74,6 +71,7 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             // Tell espresso to wait for initial loading to finish before continuing:
+            Log.d(TAG, "onCreate: Idling Resource Incremented")
             articleIdlingRes.increment()
 
             // Set up the recycler view adapter
@@ -97,6 +95,7 @@ class MainActivity : AppCompatActivity() {
                 loadOnlineArticle()
             }
 
+            Log.d(TAG, "onCreate: Idling Resource Decremented")
             articleIdlingRes.decrement()
         }
 
@@ -122,6 +121,7 @@ class MainActivity : AppCompatActivity() {
                                 // When we don't expect it to (despite there not actually being a thing
                                 // that espresso has to wait for), due to residual WorkState statuses.
                                 if (dataset.isNotEmpty() && !articleIdlingRes.isIdleNow) {
+                                    Log.d(TAG, "onCreate: Idling Resource Decremented")
                                     articleIdlingRes.decrement()
                                 }
                             }
@@ -139,11 +139,13 @@ class MainActivity : AppCompatActivity() {
          *
          * Adds the article to the given dataset list.
          */
-        // Tell espresso to wait for articles to fully co
-        // mplete before continuing (decremented when
+        // Tell espresso to wait for articles to fully
+        // complete before continuing (decremented when
         // the article is received and the list updated).
+        Log.d(TAG, "loadOnlineArticle: Idling Resource Incremented")
         articleIdlingRes.increment()
         val backgroundLoadRequest = OneTimeWorkRequestBuilder<BackgroundLoadWorker>()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
         // Enqueue it as unique work so we don't try to enact it several times at once
@@ -171,6 +173,7 @@ class MainActivity : AppCompatActivity() {
             uppercasedTitle[0] = uppercasedTitle[0].uppercaseChar()
             actualTitle[i] = uppercasedTitle.joinToString("")
         }
+
         supportActionBar?.title = actualTitle.joinToString(" ")
         binding.slidingPane.open()
     }
@@ -180,7 +183,7 @@ class MainActivity : AppCompatActivity() {
     // via onPrepareOptionsMenu(), if I want to modify it after creation. Don't just re-call this.
     // Prompt onPrepareOptionsMenu() by calling invalidateOptionsMenu().
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        // inflates INTO this activity's menu
+        // inflates INTO this activity's menu variable.
         menuInflater.inflate(R.menu.options_menu, menu)
         return true
     }
@@ -243,11 +246,34 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    companion object {
-        fun getIdlingResourceInTest(): CountingIdlingResource {
-            /** Return MainActivity's article-getting idling resource. For test purposes only. */
-            return articleIdlingRes
+    private fun createNotificationChannel() {
+        /** A helper to create the notification channel for the fairly basic notification(s) used
+         * in this app. Best done at app startup since: repeating this does nothing, and
+         * because we need the channel created before sending any notifications.
+         *
+         * Necessary for API 26+.
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            // Make the channel
+            val channelName = getString(R.string.notification_channel_name)
+            val descriptionText = getString(R.string.notification_channel_desc)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(BACKGROUND_LOAD_CHANNEL_ID, channelName,
+            importance).apply {
+                description = descriptionText
+            }
+            // Actually register the channel w/ the system
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
+             as NotificationManager
+
+            notificationManager.createNotificationChannel(channel)
         }
+
+    }
+
+    companion object {
+        /** The Idling Resource used to sync Espresso tests w/ article loading. Use for tests only! */
+        val articleIdlingRes: CountingIdlingResource = CountingIdlingResource("Loading Articles")
     }
 
 }
